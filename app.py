@@ -18,11 +18,11 @@ ff1.plotting.setup_mpl(misc_mpl_mods=False)
 def laptimes_scatter(year,gpname):
 
 
-  race = ff1.get_session(int(year),str(gpname), 'R')
-  race.load(telemetry = False,weather=False)
-  race.laps.sort_values("Position",inplace = True)
-  # Get a list of all the drivers
-  drivers = race.laps['Driver'].unique()
+  session = ff1.get_session(int(year),str(gpname), 'R')
+  session.load(telemetry = False,weather=False)
+  session.laps.sort_values("Position",inplace = True)
+  
+  drivers = session.laps['Driver'].unique()
 
   # Create a 4x5 grid of plots
   fig, axs = plt.subplots(nrows=4, ncols=5, figsize=(20, 16))
@@ -30,9 +30,8 @@ def laptimes_scatter(year,gpname):
   # Loop through all the drivers and create a separate plot for each driver
   for i, driver in enumerate(drivers):
       # Retrieve the lap times and tyre compounds of the driver
-      driver_laps = race.laps.pick_driver(driver).pick_quicklaps().reset_index()
-      #driver_tyres = race.(driver_laps['LapNumber'])
-      #driver_laps['Compound'] = driver_tyres['Compound'].values
+      driver_laps = session.laps.pick_driver(driver).pick_quicklaps().reset_index()
+      
 
       # Create a scatter plot of the lap times
       row = i // 5
@@ -61,14 +60,13 @@ def laptimes_scatter(year,gpname):
 def results(year):
 
   ergast = Ergast()
-  races = ergast.get_race_schedule(year)  # Races in year 2022
+  races = ergast.get_race_schedule(year)  
   results = []
 
   # For each race in the season
   for rnd, race in races['raceName'].items():
 
-      # Get results. Note that we use the round no. + 1, because the round no.
-      # starts from one (1) instead of zero (0)
+      
       temp = ergast.get_race_results(season=2022, round=rnd + 1)
       temp = temp.content[0]
 
@@ -83,14 +81,14 @@ def results(year):
       # Add round no. and grand prix name
       temp['round'] = rnd + 1
       temp['race'] = race.removesuffix(' Grand Prix')
-      temp = temp[['round', 'race', 'driverCode', 'points']]  # Keep useful cols.
+      temp = temp[['round', 'race', 'driverCode', 'points']] 
       results.append(temp)
 
-  # Append all races into a single dataframe
+  
   results = pd.concat(results)
   races = results['race'].drop_duplicates()
   results = results.pivot(index='driverCode', columns='round', values='points')
-  # Here we have a 22-by-22 matrix (22 races and 22 drivers, incl. DEV and HUL)
+  
 
   # Rank the drivers by their total points
   results['total_points'] = results.sum(axis=1)
@@ -103,7 +101,7 @@ def results(year):
   fig = px.imshow(
       results,
       text_auto=True,
-      aspect='auto',  # Automatically adjust the aspect ratio
+      aspect='auto',  
       color_continuous_scale=[[0,    'rgb(198, 219, 239)'],  # Blue scale
                               [0.25, 'rgb(107, 174, 214)'],
                               [0.5,  'rgb(33,  113, 181)'],
@@ -128,8 +126,8 @@ def results(year):
   #show(fig)
 
 def driver_speeds(year,gpname,p1):
-  session = ff1.get_session(int(year), str(gpname), 'R')
-  session.load()
+  # session = ff1.get_session(int(year), str(gpname), 'R')
+  # session.load()
   p1_name =str(p1)
   driver = p1_name
   
@@ -137,29 +135,24 @@ def driver_speeds(year,gpname,p1):
   session.load()
   lap = session.laps.pick_driver(driver).pick_fastest()
 
-  # Get telemetry data
-  x = lap.telemetry['X']              # values for x-axis
-  y = lap.telemetry['Y']              # values for y-axis
-  color = lap.telemetry['Speed']      # value to base color gradient on
+ # telemetry data
+  x = lap.telemetry['X']            
+  y = lap.telemetry['Y']             
+  color = lap.telemetry['Speed']      
 
   points = np.array([x, y]).T.reshape(-1, 1, 2)
   segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
   fig, ax = plt.subplots(sharex=True, sharey=True, figsize=(12, 6.75))
   # fig.set_facecolor('grey')
-  fig.suptitle(f'{gp_name} {year} - {driver} - Speed', size=24, y=0.97)
+  fig.suptitle(f'{gp_name} {year} - {driver} - Speed', size=16, y=0.97)  
 
   plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.12)
   ax.axis('off')
 
-
-
-  # Adjust margins and turn of axis
   plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.12)
   ax.axis('off')
 
-
-  # After this, we plot the data itself.
   # Create background track line
   ax.plot(lap.telemetry['X'], lap.telemetry['Y'], color='gray', linestyle='-', linewidth=6, zorder=0,alpha =0.3)
 
@@ -173,25 +166,25 @@ def driver_speeds(year,gpname,p1):
   plt.axis('equal')
   plt.tick_params(labelleft=False, left=False, labelbottom=False, bottom=False)
 
-  # Set the values used for colormapping
+  
   lc.set_array(color)
 
-  # Merge all line segments together
+  
   line = ax.add_collection(lc)
 
 
-  # Finally, we create a color bar as a legend.
+  # color bar as a legend.
   cbaxes = fig.add_axes([0.25, 0.05, 0.5, 0.02])
   normlegend = mpl.colors.Normalize(vmin=color.min(), vmax=color.max())
   legend = mpl.colorbar.ColorbarBase(cbaxes, norm=normlegend, cmap=colormap, orientation="horizontal",alpha = 0.7,label = "Speed")
 
 
-  # Show the plot
+  
   return plt.gcf()
   # plt.show()
 
 def driver_gear_shifts(year,gpname,p1):
-  session = ff1.get_session(int(year), str(gpname), 'R')
+  # session = ff1.get_session(int(year), str(gpname), 'R')
   session.load()
   p1_name =str(p1)
   desired_driver = p1_name
@@ -267,7 +260,7 @@ def team_speeds(year,gpname):
       capprops=dict(color="white"),
   )
 
-  plt.title("2023 British Grand Prix")
+  plt.title(f"{year} {gpname}")
   plt.grid(visible=False)
 
   # x-label is redundant
@@ -277,8 +270,8 @@ def team_speeds(year,gpname):
   # plt.show()
     
 def tyre_strategies(year,gpname):
-  session = ff1.get_session(int(year),str(gpname), 'R')
-  session.load(telemetry=False, weather=False)
+  # session = ff1.get_session(int(year),str(gpname), 'R')
+  # session.load(telemetry=False, weather=False)
   laps = session.laps
   drivers = session.drivers
   drivers = [session.get_driver(driver)["Abbreviation"] for driver in drivers]
@@ -305,7 +298,7 @@ def tyre_strategies(year,gpname):
 
         previous_stint_end += row["StintLength"]
 
-  plt.title("Tyre Strategies")
+  plt.title(f"Tyre Strategies of all drivers at {gpname}")
   plt.xlabel("Lap Number")
   plt.grid(False)
   # invert the y-axis so drivers that finish higher are closer to the top
@@ -320,15 +313,15 @@ def tyre_strategies(year,gpname):
   return plt.gcf()
 
 def position_changes(year,gp_name):
-  session = ff1.get_session(int(year),str(gp_name), 'R')
-  session.load(telemetry=False, weather=False)
+  # session = ff1.get_session(int(year),str(gp_name), 'R')
+  # session.load(telemetry=False, weather=False)
   top_10_drivers = session.drivers[:20]
   fig, ax = plt.subplots(figsize=(16, 12))
   for drv in top_10_drivers:
       drv_laps = session.laps.pick_driver(drv)
 
       abb = drv_laps['Driver'].iloc[0]
-      color = ff1.plotting.driver_color(abb)
+      # color = ff1.plotting.driver_color(abb)
 
       ax.plot(drv_laps['LapNumber'], drv_laps['Position'],
               label=abb)
@@ -431,15 +424,34 @@ st.title('Formula 1 Race Analysis Dashboard')
 
 with st.sidebar:
     st.title('Selection')
+    year = None
+    gp_name = None
+    p1 = None
+    p2 = None
+    selected_year = st.selectbox('Select Year',[None] + list(range(2018, 2024)))
+    if selected_year is not None:
+      year = selected_year
+    
+      grand_prix_names = list(ff1.get_event_schedule(year)['EventName'])[0:]
 
-    year = st.text_input('Enter Year')
-    gp_name = st.text_input('Enter Grand Prix Name')
+      #Dropdown for Grand Prix Name
+      selected_gp_name = st.selectbox('Select Grand Prix Name', [None] + grand_prix_names)
+      if selected_gp_name is not None:
+        gp_name = selected_gp_name
+        session = ff1.get_session(year, str(gp_name), 'R')
+        session.load(telemetry=False, weather=False)
+        driver_name = list(session.results['Abbreviation'])
+
+        p1 = st.selectbox('Select Driver 1', [None] +driver_name)
+        p2 = st.selectbox('Select Driver 2', [None] +driver_name)
+    # year = st.text_input('Enter Year')
+    # gp_name = st.text_input('Enter Grand Prix Name')
 
     
-    p1 = st.text_input('Driver 1')
-    p2 = st.text_input('Driver 2')
+    # p1 = st.text_input('Driver 1')
+    # p2 = st.text_input('Driver 2')
 
-# Visualization based on user input
+# Visualization w. custom input
 if st.button('Visualize Tyre Strategies'):
     fig_tyre = tyre_strategies(year, gp_name)
     st.pyplot(fig_tyre)
