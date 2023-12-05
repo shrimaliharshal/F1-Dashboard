@@ -258,6 +258,7 @@ def team_speeds(year,gpname):
       boxprops=dict(edgecolor="white"),
       medianprops=dict(color="grey"),
       capprops=dict(color="white"),
+      legend = False
   )
 
   plt.title(f"{year} {gpname}")
@@ -444,12 +445,7 @@ with st.sidebar:
 
         p1 = st.selectbox('Select Driver 1', [None] +driver_name)
         p2 = st.selectbox('Select Driver 2', [None] +driver_name)
-    # year = st.text_input('Enter Year')
-    # gp_name = st.text_input('Enter Grand Prix Name')
-
-    
-    # p1 = st.text_input('Driver 1')
-    # p2 = st.text_input('Driver 2')
+ 
 
 # Visualization w. custom input
 if st.button('Visualize Tyre Strategies'):
