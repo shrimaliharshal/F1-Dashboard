@@ -67,11 +67,11 @@ def results(year):
   for rnd, race in races['raceName'].items():
 
       
-      temp = ergast.get_race_results(season=2022, round=rnd + 1)
+      temp = ergast.get_race_results(season=int(year), round=rnd + 1)
       temp = temp.content[0]
 
       # If there is a sprint, get the results as well
-      sprint = ergast.get_sprint_results(season=2022, round=rnd + 1)
+      sprint = ergast.get_sprint_results(season=int(year), round=rnd + 1)
       if sprint.content and sprint.description['round'][0] == rnd + 1:
           temp = pd.merge(temp, sprint.content[0], on='driverCode', how='left')
           # Add sprint points and race points to get the total
