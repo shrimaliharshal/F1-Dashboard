@@ -478,4 +478,13 @@ if st.button('Gear shifts of Driver 1'):
 
 if st.button('Visualize Results'):
   fig_results = results(year)
-  st.plotly_chart(fig_results)    
+  st.plotly_chart(fig_results)  
+
+# At the bottom of your Streamlit script, add the following lines:
+
+st.markdown("""---""")  # Adds a horizontal line for separation
+st.markdown("""
+Built by **Harshal Shrimali**  
+Connect with me on [LinkedIn](https://www.linkedin.com/in/harshalshrimali).
+""", unsafe_allow_html=True)
+  
