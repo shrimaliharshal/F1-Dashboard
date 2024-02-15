@@ -482,9 +482,9 @@ if st.button('Visualize Results'):
 
 # At the bottom of your Streamlit script, add the following lines:
 
-st.markdown("""---""")  # Adds a horizontal line for separation
-st.markdown("""
-Built by **Harshal Shrimali**  
-Connect with me on [LinkedIn](https://www.linkedin.com/in/harshalshrimali).
-""", unsafe_allow_html=True)
+# st.markdown("""---""")  # Adds a horizontal line for separation
+# st.markdown("""
+# Built by **Harshal Shrimali**  
+# Connect with me on [LinkedIn](https://www.linkedin.com/in/harshalshrimali).
+# """, unsafe_allow_html=True)
   
